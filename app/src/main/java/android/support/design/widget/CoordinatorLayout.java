@@ -372,6 +372,11 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
      * for a new event stream. This should be called when attached or detached from a window,
      * in response to an UP or CANCEL event, when intercept is request-disallowed
      * and similar cases where an event stream in progress will be aborted.
+     *
+     * 重置所有行为相关的跟踪记录，以清理或准备新的事件流。 当连接或从窗口分离时，这应该被调用，
+     * 以响应UP或CANCEL事件，当拦截被请求 - 不允许时，以及正在进行的事件流将被中止的类似情况。
+     *
+     * 此方法拦截所有事件，并重置
      */
     private void resetTouchBehaviors(boolean notifyOnInterceptTouchEvent) {
         final int childCount = getChildCount();
@@ -440,6 +445,7 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
 
             if ((intercepted || newBlock) && action != MotionEvent.ACTION_DOWN) {
                 // Cancel all behaviors beneath the one that intercepted.
+                // 取消所有behavior。 如果是DOWN，则不需做任何cancel处理
                 // If the event is "down" then we don't have anything to cancel yet.
                 if (b != null) {
                     if (cancelEvent == null) {
@@ -475,12 +481,16 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
 
             // Don't keep going if we're not allowing interaction below this.
             // Setting newBlock will make sure we cancel the rest of the behaviors.
+            // 如果我们不允许在此之下进行互动，请不要继续。 设置newBlock将确保我们取消其余的行为。
             final boolean wasBlocking = lp.didBlockInteraction();
             final boolean isBlocking = lp.isBlockingInteractionBelow(this, child);
             newBlock = isBlocking && !wasBlocking;
             if (isBlocking && !newBlock) {
                 // Stop here since we don't have anything more to cancel - we already did
                 // when the behavior first started blocking things below this point.
+                // 由于我们没有更多的东西需要取消，因此我们就停下来 - 我们已经在行为第一次开始
+                // 时阻止了这一点。
+                //
                 break;
             }
         }
@@ -2867,6 +2877,9 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
          * Returns true if the associated Behavior previously blocked interaction with other views
          * below the associated child since the touch behavior tracking was last
          * {@link #resetTouchBehaviorTracking() reset}.
+         *
+         * 如果相关行为先前阻止与相关子级下的其他视图的交互，则返回true，
+         * 因为触摸行为跟踪是最后一次
          *
          * @see #isBlockingInteractionBelow(CoordinatorLayout, View)
          */

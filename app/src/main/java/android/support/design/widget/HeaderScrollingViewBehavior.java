@@ -159,6 +159,7 @@ abstract class HeaderScrollingViewBehavior extends ViewOffsetBehavior<View> {
 
     /**
      * The gap between the top of the scrolling view and the bottom of the header layout in pixels.
+     * 滚动视图顶部与页眉布局底部之间的差距（以像素为单位）。
      */
     final int getVerticalLayoutGap() {
         return mVerticalLayoutGap;
@@ -166,7 +167,7 @@ abstract class HeaderScrollingViewBehavior extends ViewOffsetBehavior<View> {
 
     /**
      * Set the distance that this view should overlap any {@link AppBarLayout}.
-     *
+     * 此视图应与任何appbar重叠的距离
      * @param overlayTop the distance in px
      */
     public final void setOverlayTop(int overlayTop) {
@@ -175,6 +176,7 @@ abstract class HeaderScrollingViewBehavior extends ViewOffsetBehavior<View> {
 
     /**
      * Returns the distance that this view should overlap any {@link AppBarLayout}.
+     * 返回此视图应与任何appbar重叠的距离
      */
     public final int getOverlayTop() {
         return mOverlayTop;

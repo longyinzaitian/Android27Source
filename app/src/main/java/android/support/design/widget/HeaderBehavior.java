@@ -59,6 +59,7 @@ abstract class HeaderBehavior<V extends View> extends ViewOffsetBehavior<V> {
         final int action = ev.getAction();
 
         // Shortcut since we're being dragged
+        // 如果已经MOVE,且拖拽，直接拦截事件
         if (action == MotionEvent.ACTION_MOVE && mIsBeingDragged) {
             return true;
         }

@@ -825,6 +825,7 @@ public class AppBarLayout extends LinearLayout {
                 View directTargetChild, View target, int nestedScrollAxes, int type) {
             // Return true if we're nested scrolling vertically, and we have scrollable children
             // and the scrolling view is big enough to scroll
+            // 返回true, 判决条件是：竖直滑动，且有可滑动的子View，且滑动的View有足够的空间可滑动
             final boolean started = (nestedScrollAxes & ViewCompat.SCROLL_AXIS_VERTICAL) != 0
                     && child.hasScrollableChildren()
                     && parent.getHeight() - directTargetChild.getHeight() <= child.getHeight();
@@ -864,6 +865,9 @@ public class AppBarLayout extends LinearLayout {
         public void onNestedScroll(CoordinatorLayout coordinatorLayout, AppBarLayout child,
                 View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed,
                 int type) {
+            // 这里子View消耗的距离只有是向下的距离情况下，此时appbar才向下滑动
+            // 如果向上滑动，即使有子View未处理的滑动距离，也不滑动
+            // 子View可为RecyclerView等
             if (dyUnconsumed < 0) {
                 // If the scrolling view is scrolling down but not consuming, it's probably be at
                 // the top of it's content
@@ -877,6 +881,7 @@ public class AppBarLayout extends LinearLayout {
                 View target, int type) {
             if (type == ViewCompat.TYPE_TOUCH) {
                 // If we haven't been flung then let's see if the current view has been set to snap
+                // 这个情况是对snap配置起作用。里面使用到了动画，自动展开和折叠
                 snapToChildIfNeeded(coordinatorLayout, abl);
             }
 
@@ -909,6 +914,7 @@ public class AppBarLayout extends LinearLayout {
             animateOffsetWithDuration(coordinatorLayout, child, offset, duration);
         }
 
+        // 这里使用的是简单的值动画，不难
         private void animateOffsetWithDuration(final CoordinatorLayout coordinatorLayout,
                 final AppBarLayout child, final int offset, final int duration) {
             final int currentOffset = getTopBottomOffsetForScrollingSibling();
@@ -956,6 +962,7 @@ public class AppBarLayout extends LinearLayout {
                 final LayoutParams lp = (LayoutParams) offsetChild.getLayoutParams();
                 final int flags = lp.getScrollFlags();
 
+                // 从这里可以看出只对snap配置起作用
                 if ((flags & LayoutParams.FLAG_SNAP) == LayoutParams.FLAG_SNAP) {
                     // We're set the snap, so animate the offset to the nearest edge
                     int snapTop = -offsetChild.getTop();
@@ -981,6 +988,7 @@ public class AppBarLayout extends LinearLayout {
                         }
                     }
 
+                    // 如果偏移量达到找到的view的一半，则移动view的底部，否则移动view的顶部
                     final int newOffset = offset < (snapBottom + snapTop) / 2
                             ? snapBottom
                             : snapTop;
@@ -1005,6 +1013,12 @@ public class AppBarLayout extends LinearLayout {
                 // cap the view at the CoL's height. Since the AppBarLayout can scroll, this isn't
                 // what we actually want, so we measure it ourselves with an unspecified spec to
                 // allow the child to be larger than it's parent
+                // 如果视图设置为包裹高度，默认情况下，CoordinatorLayout会将视图限制在CoL的高度。
+                // 由于AppBarLayout可以滚动，所以这不是我们真正想要的，所以我们用一个未指定的规格来
+                // 测量它，以允许孩子比它的父母大
+
+                // 高度如果是wrap_content，则将appbar的高度设置为不指定
+                // 这种情况下，appbar会包裹内容，内容有多大，appbar就有多大。
                 parent.onMeasureChild(child, parentWidthMeasureSpec, widthUsed,
                         MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED), heightUsed);
                 return true;
@@ -1072,6 +1086,10 @@ public class AppBarLayout extends LinearLayout {
             return handled;
         }
 
+        // 此方法在onInterceptTouchEvent和onTouchEvent方法中的DOWN中均有调用
+        // 触发方法：触发坐标在子view中和此方法返回true
+        // 返回true: 第一种设置callback,在canDrag方法中返回
+        //          第二种判断可滑动的子view是否可向下滑动
         @Override
         boolean canDragView(AppBarLayout view) {
             if (mOnDragCallback != null) {
@@ -1138,6 +1156,7 @@ public class AppBarLayout extends LinearLayout {
                     }
 
                     // Dispatch the updates to any listeners
+                    // 这里调用appbar的监听器，通知appbar的偏移量
                     appBarLayout.dispatchOffsetUpdates(getTopAndBottomOffset());
 
                     // Update the AppBarLayout's drawable state (for any elevation changes)
@@ -1256,6 +1275,7 @@ public class AppBarLayout extends LinearLayout {
             return false;
         }
 
+        // 获取当前偏移量的位置上对应的view
         private static View getAppBarChildOnOffset(final AppBarLayout layout, final int offset) {
             final int absOffset = Math.abs(offset);
             for (int i = 0, z = layout.getChildCount(); i < z; i++) {
@@ -1406,12 +1426,14 @@ public class AppBarLayout extends LinearLayout {
             return false;
         }
 
+        //当所依赖的appbar出现变化，调用此方法
         private void offsetChildAsNeeded(CoordinatorLayout parent, View child, View dependency) {
             final CoordinatorLayout.Behavior behavior =
                     ((CoordinatorLayout.LayoutParams) dependency.getLayoutParams()).getBehavior();
             if (behavior instanceof Behavior) {
                 // Offset the child, pinning it to the bottom the header-dependency, maintaining
                 // any vertical gap and overlap
+                // 当appbar移动位置变动，通过此方法移动child View
                 final Behavior ablBehavior = (Behavior) behavior;
                 ViewCompat.offsetTopAndBottom(child, (dependency.getBottom() - child.getTop())
                         + ablBehavior.mOffsetDelta
