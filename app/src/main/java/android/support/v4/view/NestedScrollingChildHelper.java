@@ -63,6 +63,10 @@ public class NestedScrollingChildHelper {
      * method/{@link NestedScrollingChild} interface method with the same
      * signature to implement the standard policy.</p>
      *
+     * 这是一个委托方法。使用相同的签名从您的View子类方法NestedScrollingChild接口方法调用它来实现标准策略。
+     * recycler view中默认情况下设置为true。
+     * View中默认情况下设置为false。
+     *
      * @param enabled true to enable nested scrolling dispatch from this view, false otherwise
      */
     public void setNestedScrollingEnabled(boolean enabled) {
@@ -145,6 +149,10 @@ public class NestedScrollingChildHelper {
             // Already in progress
             return true;
         }
+        /**
+         * 这里循环遍历父View,只有父View中NestedScrollingParent或者NestedScrollingParent2
+         * 接口的实现类才会继续进入if语句中。
+         */
         if (isNestedScrollingEnabled()) {
             ViewParent p = mView.getParent();
             View child = mView;

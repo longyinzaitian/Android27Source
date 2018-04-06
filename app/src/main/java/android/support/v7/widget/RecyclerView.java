@@ -431,6 +431,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
 
     /**
      * The RecyclerView is currently being dragged by outside input such as user touch input.
+     * RecyclerView目前正在被外部输入如用户触摸输入拖动。
      * @see #getScrollState()
      */
     public static final int SCROLL_STATE_DRAGGING = 1;
@@ -438,6 +439,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
     /**
      * The RecyclerView is currently animating to a final position while not under
      * outside control.
+     *
+     * RecyclerView目前正在动画到最终位置，而不受外界控制。
      * @see #getScrollState()
      */
     public static final int SCROLL_STATE_SETTLING = 2;
@@ -1765,6 +1768,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
      * Does not perform bounds checking. Used by internal methods that have already validated input.
      * <p>
      * It also reports any unused scroll request to the related EdgeEffect.
+     * 不执行边界检查。
+     * 由已验证输入的内部方法使用。 它还会将任何未使用的滚动请求报告给相关的EdgeEffect。
      *
      * @param x The amount of horizontal scroll request
      * @param y The amount of vertical scroll request
@@ -2847,6 +2852,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView, NestedScro
 
                 final int x = (int) (e.getX(index) + 0.5f);
                 final int y = (int) (e.getY(index) + 0.5f);
+                // 以下代码会在recycler view自身滑动的情况下（不是手指滑动）才会触发
                 if (mScrollState != SCROLL_STATE_DRAGGING) {
                     final int dx = x - mInitialTouchX;
                     final int dy = y - mInitialTouchY;
